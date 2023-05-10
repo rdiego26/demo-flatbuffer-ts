@@ -131,3 +131,7 @@ dist
 
 # Webstorm files
 .idea
+
+# Experiment files
+*.json
+*.bin

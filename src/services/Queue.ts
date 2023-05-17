@@ -7,7 +7,7 @@ export class Queue {
 
     public async init(): Promise<void> {
         this.connection = await client.connect(
-            `amqp://${process.env.RABBIT_MQ_USER}:${process.env.RABBIT_MQ_PASS}@localhost:5672`
+            `amqp://${process.env.RABBIT_MQ_USER}:${process.env.RABBIT_MQ_PASS}@rabbitmq:5672`
         );
 
         this.channel = await this.connection.createChannel();

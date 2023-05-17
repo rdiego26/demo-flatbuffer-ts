@@ -11,8 +11,12 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
+      RABBIT_MQ_USER: username
+      RABBIT_MQ_PASS: password
     volumes:
       - ./src:/app/src
+    networks:
+      - rabbitmq_net
     ports:
       - "3000:3000"
   localstack:

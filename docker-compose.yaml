@@ -2,14 +2,18 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - localstack
-    command:
-      - npm run start
+    environment:
+      NODE_ENV: development
+      PORT: 3000
     volumes:
-      - .:/app/
-      - /app/node_modules
+      - ./src:/app/src
+    ports:
+      - "3000:3000"
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
     image: localstack/localstack

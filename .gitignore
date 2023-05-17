@@ -132,6 +132,9 @@ dist
 # Webstorm files
 .idea
 
+# Typescript
+build/
+
 # Experiment files
 *.json
 *.bin

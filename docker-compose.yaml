@@ -13,10 +13,13 @@ services:
       PORT: 3000
       RABBIT_MQ_USER: username
       RABBIT_MQ_PASS: password
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
     volumes:
       - ./src:/app/src
     networks:
       - rabbitmq_net
+      - ls
     ports:
       - "3000:3000"
   localstack:
@@ -31,6 +34,8 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - ls
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -49,4 +54,6 @@ services:
 
 networks:
   rabbitmq_net:
+    driver: bridge
+  ls:
     driver: bridge

@@ -3,19 +3,28 @@ import * as crypto from "crypto";
 import { Queue } from "./services/Queue";
 import { Channel, ConsumeMessage } from "amqplib";
 import { ExtractedFeature } from "./models/ExtractedFeature";
+import { EFS } from "./services/EFS";
+
 const app = express();
 const queueName: string = 'extracted-features';
 const queue: Queue = new Queue();
+const fileSystem: EFS = new EFS();
 const port: string | 3000 = process.env.PORT || 3000;
 
 const setupConsumer = async (): Promise<void> => {
     await queue.init();
-    const consumer = (channel: Channel) => (msg: ConsumeMessage | null): void => {
+    const consumer = (channel: Channel) => async(msg: ConsumeMessage | null): Promise<void> => {
         if (msg) {
-            // Display the received message
-            console.log(msg.content.toString());
-            // Acknowledge the message
-            channel.ack(msg);
+            try {
+                const content: ExtractedFeature = JSON.parse(msg.content.toString());
+                console.log(`content=${JSON.stringify(content)}`);
+                await fileSystem.createFileSystem(content.companyId);
+
+                channel.ack(msg);
+            } catch (e: any) {
+                console.error(e);
+                channel.reject(msg, false);
+            }
         }
     }
     await queue.consumeQueue(queueName, consumer);

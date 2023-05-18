@@ -17,4 +17,9 @@ export class Queue {
         await this.channel?.assertQueue(queue);
         this.channel?.sendToQueue(queue, Buffer.from(message));
     }
+
+    async consumeQueue(queue: string, callback: Function): Promise<void> {
+        await this.channel?.assertQueue(queue);
+        await this.channel?.consume(queue, callback(this.channel));
+    }
 }

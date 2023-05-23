@@ -1,14 +1,18 @@
 import express from "express";
 import * as crypto from "crypto";
+import fs from "fs";
+import * as flatbuffers from "flatbuffers";
+
+import { Experiment } from "./PersonSchema";
 import { Queue } from "./services/Queue";
 import { Channel, ConsumeMessage } from "amqplib";
 import { ExtractedFeature } from "./models/ExtractedFeature";
-import { EFS } from "./services/EFS";
+import { FileSystem } from "./services/FileSystem";
 
 const app = express();
 const queueName: string = 'extracted-features';
 const queue: Queue = new Queue();
-const fileSystem: EFS = new EFS();
+const fileSystem: FileSystem = new FileSystem();
 const port: string | 3000 = process.env.PORT || 3000;
 
 const setupConsumer = async (): Promise<void> => {
@@ -18,7 +22,7 @@ const setupConsumer = async (): Promise<void> => {
             try {
                 const content: ExtractedFeature = JSON.parse(msg.content.toString());
                 console.log(`content=${JSON.stringify(content)}`);
-                await fileSystem.createFileSystem(content.companyId);
+                await fileSystem.createFolder(content.companyId);
 
                 channel.ack(msg);
             } catch (e: any) {
@@ -29,6 +33,19 @@ const setupConsumer = async (): Promise<void> => {
     }
     await queue.consumeQueue(queueName, consumer);
 };
+
+app.get('/read-file', async(req, res) => {
+   let rawData = new Uint8Array(fs.readFileSync('3ac6242d-795f-4801-9b49-f793e1e9dd0f.bin'));
+   let buf = new flatbuffers.ByteBuffer(rawData);
+
+   let person = Experiment.Person.getRootAsPerson(buf);
+   let feature = person.data(0)?.featureArray();
+
+   let builder = new flatbuffers.Builder();
+   // let data = builder.
+
+   res.send(feature);
+});
 
 app.get('/send-message', async (req, res): Promise<void> => {
     await queue.init();

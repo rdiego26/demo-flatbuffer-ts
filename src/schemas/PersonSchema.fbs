@@ -1,8 +1,11 @@
 namespace Experiment;
 
+table Feature {
+    feature: [float];
+}
+
 table Person {
-    id: string;
-    features: [float];
+    data: [Feature];
 }
 
 root_type Person;
